@@ -17,17 +17,17 @@
 
 <h1>⚔️ Escrime Scoreboard</h1>
 
-<div id="timer">00:00.000</div>
+<div id="timer">00:00</div>
 
 <div id="winnerMessage"></div>
 
-<div>
-    <button onclick="startTimer()">Start</button>
-    <button onclick="pauseTimer()">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="saveMatch()">Sauvegarder match</button>
-    <button onclick="clearAll()">Reset tout</button>
-</div>
+<br>
+
+<button onclick="startTimer()">Start</button>
+<button onclick="pauseTimer()">Pause</button>
+<button onclick="resetTimer()">Reset</button>
+<button onclick="saveMatch()">Sauvegarder match</button>
+<button onclick="clearAll()">Reset</button>
 
 <hr>
 
@@ -37,13 +37,14 @@
 
     <h2 id="score1">0</h2>
 
-    <p>
-        🟨 <span id="yellow1">0</span>
-        🟥 <span id="red1">0</span>
-    </p>
+    🟨 <span id="yellow1">0</span>
+    🟥 <span id="red1">0</span>
+
+    <br>
 
     <button onclick="changeScore(1,1)">+1</button>
     <button onclick="changeScore(1,-1)">-1</button>
+
     <button onclick="addCard(1,'yellow')">Jaune</button>
     <button onclick="addCard(1,'red')">Rouge</button>
 </div>
@@ -56,13 +57,14 @@
 
     <h2 id="score2">0</h2>
 
-    <p>
-        🟨 <span id="yellow2">0</span>
-        🟥 <span id="red2">0</span>
-    </p>
+    🟨 <span id="yellow2">0</span>
+    🟥 <span id="red2">0</span>
+
+    <br>
 
     <button onclick="changeScore(2,1)">+1</button>
     <button onclick="changeScore(2,-1)">-1</button>
+
     <button onclick="addCard(2,'yellow')">Jaune</button>
     <button onclick="addCard(2,'red')">Rouge</button>
 </div>
@@ -77,14 +79,14 @@
 let time = 0;
 let interval = null;
 
-// TIMER
+// TIMER (SECONDES)
 function startTimer() {
     if (interval) return;
 
     interval = setInterval(() => {
-        time += 10;
+        time += 1000;
         updateTimer();
-    }, 10);
+    }, 1000);
 }
 
 function pauseTimer() {
@@ -99,14 +101,13 @@ function resetTimer() {
 }
 
 function updateTimer() {
+
     let m = Math.floor(time / 60000);
-    let s = Math.floor(time % 60000 / 1000);
-    let ms = time % 1000;
+    let s = Math.floor((time % 60000) / 1000);
 
     document.getElementById("timer").textContent =
-        String(m).padStart(2,"0")+":"+
-        String(s).padStart(2,"0")+"."+
-        String(ms).padStart(3,"0");
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0");
 }
 
 // SCORE
@@ -132,17 +133,17 @@ function checkWinner() {
     if (s1 >= 10) {
         pauseTimer();
         winnerMessage.innerHTML =
-            team1Name.value + " a gagné !";
+            team1Name.value + " gagne ! 🏆";
     }
 
     if (s2 >= 10) {
         pauseTimer();
         winnerMessage.innerHTML =
-            team2Name.value + " a gagné !";
+            team2Name.value + " gagne ! 🏆";
     }
 }
 
-// CARDS
+// CARTONS
 function addCard(team, color) {
 
     let el = document.getElementById(color+team);
@@ -207,7 +208,8 @@ function displayHistory() {
             <b>${m.date}</b><br>
             ${m.t1} ${m.s1} - ${m.s2} ${m.t2}<br>
             ⏱ ${m.time}
-        </div><hr>`;
+        </div>
+        <hr>`;
     });
 }
 
