@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">   
+    <meta name="theme-color" content="#000000">
+    <meta charset="UTF-8">
+    <title>Passion Escrime</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<h1>⚔️ Escrime Scoreboard</h1>
+
+<div id="timer">00:00.000</div>
+
+<div id="winnerMessage"></div>
+
+<div>
+    <button onclick="startTimer()">Start</button>
+    <button onclick="pauseTimer()">Pause</button>
+    <button onclick="resetTimer()">Reset</button>
+    <button onclick="saveMatch()">Sauvegarder match</button>
+    <button onclick="clearAll()">Reset tout</button>
+</div>
+
+<hr>
+
+<!-- JOUEUR 1 -->
+<div>
+    <input id="team1Name" value="Tireur A">
+
+    <h2 id="score1">0</h2>
+
+    <p>
+        🟨 <span id="yellow1">0</span>
+        🟥 <span id="red1">0</span>
+    </p>
+
+    <button onclick="changeScore(1,1)">+1</button>
+    <button onclick="changeScore(1,-1)">-1</button>
+    <button onclick="addCard(1,'yellow')">Jaune</button>
+    <button onclick="addCard(1,'red')">Rouge</button>
+</div>
+
+<hr>
+
+<!-- JOUEUR 2 -->
+<div>
+    <input id="team2Name" value="Tireur B">
+
+    <h2 id="score2">0</h2>
+
+    <p>
+        🟨 <span id="yellow2">0</span>
+        🟥 <span id="red2">0</span>
+    </p>
+
+    <button onclick="changeScore(2,1)">+1</button>
+    <button onclick="changeScore(2,-1)">-1</button>
+    <button onclick="addCard(2,'yellow')">Jaune</button>
+    <button onclick="addCard(2,'red')">Rouge</button>
+</div>
+
+<hr>
+
+<h2>Historique</h2>
+<div id="history"></div>
+
+<script>
+
+let time = 0;
+let interval = null;
+
+// TIMER
+function startTimer() {
+    if (interval) return;
+
+    interval = setInterval(() => {
+        time += 10;
+        updateTimer();
+    }, 10);
+}
+
+function pauseTimer() {
+    clearInterval(interval);
+    interval = null;
+}
+
+function resetTimer() {
+    pauseTimer();
+    time = 0;
+    updateTimer();
+}
+
+function updateTimer() {
+    let m = Math.floor(time / 60000);
+    let s = Math.floor(time % 60000 / 1000);
+    let ms = time % 1000;
+
+    document.getElementById("timer").textContent =
+        String(m).padStart(2,"0")+":"+
+        String(s).padStart(2,"0")+"."+
+        String(ms).padStart(3,"0");
+}
+
+// SCORE
+function changeScore(team, value) {
+
+    let el = document.getElementById("score"+team);
+    let score = parseInt(el.textContent);
+
+    score += value;
+    if (score < 0) score = 0;
+
+    el.textContent = score;
+
+    checkWinner();
+}
+
+// WIN
+function checkWinner() {
+
+    let s1 = parseInt(score1.textContent);
+    let s2 = parseInt(score2.textContent);
+
+    if (s1 >= 10) {
+        pauseTimer();
+        winnerMessage.innerHTML =
+            team1Name.value + " a gagné !";
+    }
+
+    if (s2 >= 10) {
+        pauseTimer();
+        winnerMessage.innerHTML =
+            team2Name.value + " a gagné !";
+    }
+}
+
+// CARDS
+function addCard(team, color) {
+
+    let el = document.getElementById(color+team);
+    el.textContent = parseInt(el.textContent) + 1;
+
+    penalty(team);
+}
+
+// PENALTY
+function penalty(team) {
+
+    let yellow = parseInt(document.getElementById("yellow"+team).textContent);
+    let red = parseInt(document.getElementById("red"+team).textContent);
+
+    if (yellow >= 2) {
+        document.getElementById("red"+team).textContent = red + 1;
+        document.getElementById("yellow"+team).textContent = 0;
+    }
+
+    if (red >= 2) {
+        let opp = team === 1 ? 2 : 1;
+
+        document.getElementById("score"+opp).textContent =
+            parseInt(document.getElementById("score"+opp).textContent) + 1;
+
+        document.getElementById("red"+team).textContent = 0;
+
+        checkWinner();
+    }
+}
+
+// SAVE MATCH
+function saveMatch() {
+
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+
+    history.unshift({
+        date: new Date().toLocaleString(),
+        t1: team1Name.value,
+        t2: team2Name.value,
+        s1: score1.textContent,
+        s2: score2.textContent,
+        time: timer.textContent
+    });
+
+    localStorage.setItem("history", JSON.stringify(history));
+
+    displayHistory();
+}
+
+// DISPLAY HISTORY
+function displayHistory() {
+
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+
+    let box = document.getElementById("history");
+    box.innerHTML = "";
+
+    history.forEach(m => {
+        box.innerHTML += `
+        <div>
+            <b>${m.date}</b><br>
+            ${m.t1} ${m.s1} - ${m.s2} ${m.t2}<br>
+            ⏱ ${m.time}
+        </div><hr>`;
+    });
+}
+
+// RESET ALL
+function clearAll() {
+    localStorage.removeItem("history");
+    location.reload();
+}
+
+// INIT
+displayHistory();
+
+</script>
+
+</body>
+</html>
